@@ -1,103 +1,153 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
     <meta charset="UTF-8">
-    <title>Mi Música</title>
+    <title>Radio Molotov</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Plyr CSS -->
+    <link rel="stylesheet" href="https://cdn.plyr.io/3.7.8/plyr.css" />
+
     <style>
         body {
             background: #111;
             color: white;
-            font-family: Arial;
+            font-family: Arial, sans-serif;
             text-align: center;
             padding: 20px;
         }
-        audio {
-            width: 100%;
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        .controls button {
+            padding: 10px 15px;
+            margin: 10px 5px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 6px;
+            border: none;
+        }
+
+        .controls button:hover {
+            opacity: 0.8;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
             margin-top: 20px;
         }
-        button {
-            padding: 10px;
-            margin: 10px;
-            font-size: 16px;
+
+        li {
+            padding: 8px;
+            cursor: pointer;
+        }
+
+        li:hover {
+            color: lime;
+        }
+
+        li.active {
+            color: lime;
+            font-weight: bold;
+        }
+
+        .player-container {
+            max-width: 600px;
+            margin: auto;
         }
     </style>
-    <script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
-        <script>
-            const player = new Plyr('#player');
-        </script>
-    <audio id="player">
-        <source src="canciones/track1.mp3" type="audio/mp3" />
-    </audio>
 </head>
 <body>
 
 <h1>🎵 Radio Molotov</h1>
 
-<audio id="player" controls></audio>
+<div class="player-container">
+    <audio id="player" controls></audio>
+</div>
 
-<div>
-  <button onclick="prevSong()">⏮ Prev</button>
-  <button onclick="nextSong()">⏭ Next</button>
-  <button onclick="shuffle()">🎲 Shuffle</button>
+<div class="controls">
+    <button onclick="prevSong()">⏮ Prev</button>
+    <button onclick="nextSong()">⏭ Next</button>
+    <button onclick="shuffle()">🎲 Shuffle</button>
 </div>
 
 <ul id="playlist"></ul>
 
+<!-- Plyr JS -->
+<script src="https://cdn.plyr.io/3.7.8/plyr.js"></script>
+
 <script>
-const songs = [
-    "canciones/Panteón Rococó - Nada Pasó (En Vivo).mp3",
+document.addEventListener("DOMContentLoaded", function() {
+
+    const songs = [
+        "canciones/Panteón Rococó - Nada Pasó (En Vivo).mp3",
     "canciones/Patricio Rey y sus Redonditos de Ricota - Preso en Mi Ciudad - Oktubre (Audio Oficial).mp3"
-];
+    ];
 
-let currentIndex = 0;
-const player = document.getElementById("player");
-const playlist = document.getElementById("playlist");
+    let currentIndex = 0;
+    const audio = document.getElementById("player");
+    const playlist = document.getElementById("playlist");
 
-function renderPlaylist() {
-    playlist.innerHTML = "";
-    songs.forEach((song, index) => {
-        const li = document.createElement("li");
-        const name = song.split("/").pop().replace(".mp3", "");
-        li.textContent = name;
-        li.style.cursor = "pointer";
-        li.onclick = () => loadSong(index);
-        if (index === currentIndex) {
-            li.style.color = "lime";
-        }
-        playlist.appendChild(li);
+    // Inicializar Plyr correctamente
+    const player = new Plyr(audio);
+
+    function renderPlaylist() {
+        playlist.innerHTML = "";
+        songs.forEach((song, index) => {
+            const li = document.createElement("li");
+            const name = song.split("/").pop().replace(".mp3", "");
+            li.textContent = name;
+            li.onclick = () => loadSong(index);
+
+            if (index === currentIndex) {
+                li.classList.add("active");
+            }
+
+            playlist.appendChild(li);
+        });
+    }
+
+    function loadSong(index) {
+        if (songs.length === 0) return;
+        currentIndex = index;
+        player.source = {
+            type: 'audio',
+            sources: [{
+                src: songs[currentIndex],
+                type: 'audio/mp3',
+            }]
+        };
+        player.play();
+        renderPlaylist();
+    }
+
+    window.nextSong = function() {
+        currentIndex = (currentIndex + 1) % songs.length;
+        loadSong(currentIndex);
+    };
+
+    window.prevSong = function() {
+        currentIndex = (currentIndex - 1 + songs.length) % songs.length;
+        loadSong(currentIndex);
+    };
+
+    window.shuffle = function() {
+        const randomIndex = Math.floor(Math.random() * songs.length);
+        loadSong(randomIndex);
+    };
+
+    player.on('ended', () => {
+        window.nextSong();
     });
-}
 
-function loadSong(index) {
-    if (songs.length === 0) return;
-    currentIndex = index;
-    player.src = songs[currentIndex];
-    player.play();
-    renderPlaylist();
-}
+    if (songs.length > 0) {
+        loadSong(0);
+    }
 
-function nextSong() {
-    currentIndex = (currentIndex + 1) % songs.length;
-    loadSong(currentIndex);
-}
-
-function prevSong() {
-    currentIndex = (currentIndex - 1 + songs.length) % songs.length;
-    loadSong(currentIndex);
-}
-
-function shuffle() {
-    const randomIndex = Math.floor(Math.random() * songs.length);
-    loadSong(randomIndex);
-}
-
-player.addEventListener("ended", nextSong);
-
-if (songs.length > 0) {
-    loadSong(0);
-}
+});
 </script>
 
 </body>
