@@ -63,6 +63,7 @@
 <body>
 
 <h1>🎵 Radio Molotov</h1>
+<h2 id="currentSong">Selecciona una canción</h2>
 
 <div class="player-container">
     <audio id="player" controls></audio>
@@ -121,11 +122,32 @@ document.addEventListener("DOMContentLoaded", function() {
 
         currentIndex = index;
 
-        audio.src = songs[currentIndex];
-        audio.load();
+        const songPath = songs[currentIndex];
+        const name = songPath.split("/").pop().replace(".mp3", "");
 
+        audio.src = songPath;
+        audio.load();
         if (userInteracted) {
-            audio.play().catch(err => console.log("Autoplay bloqueado"));
+            audio.play().catch(() => {});
+}
+
+        document.getElementById("currentSong").textContent = name;
+
+        // 🔥 AQUI agregas MediaSession
+        if ('mediaSession' in navigator) {
+            navigator.mediaSession.metadata = new MediaMetadata({
+                title: name,
+                artist: "Radio Molotov",
+                album: "Streaming"
+            });
+
+            navigator.mediaSession.setActionHandler('nexttrack', () => {
+                nextSong();
+            });
+
+            navigator.mediaSession.setActionHandler('previoustrack', () => {
+                prevSong();
+            });
         }
 
         renderPlaylist();
