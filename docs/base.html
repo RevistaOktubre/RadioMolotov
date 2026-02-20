@@ -87,11 +87,17 @@ document.addEventListener("DOMContentLoaded", function() {
     ];
 
     let currentIndex = 0;
+    let userInteracted = false;
+
     const audio = document.getElementById("player");
     const playlist = document.getElementById("playlist");
 
-    // Inicializar Plyr correctamente
     const player = new Plyr(audio);
+
+    // Detectar interacción del usuario
+    document.body.addEventListener("click", () => {
+        userInteracted = true;
+    }, { once: true });
 
     function renderPlaylist() {
         playlist.innerHTML = "";
@@ -111,15 +117,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
     function loadSong(index) {
         if (songs.length === 0) return;
+
         currentIndex = index;
-        player.source = {
-            type: 'audio',
-            sources: [{
-                src: songs[currentIndex],
-                type: 'audio/mp3',
-            }]
-        };
-        player.play();
+
+        audio.src = songs[currentIndex];
+        audio.load();
+
+        if (userInteracted) {
+            audio.play().catch(err => console.log("Autoplay bloqueado"));
+        }
+
         renderPlaylist();
     }
 
@@ -138,8 +145,9 @@ document.addEventListener("DOMContentLoaded", function() {
         loadSong(randomIndex);
     };
 
-    player.on('ended', () => {
-        window.nextSong();
+    // 🔥 EVENTO NATIVO
+    audio.addEventListener("ended", () => {
+        nextSong();
     });
 
     if (songs.length > 0) {
