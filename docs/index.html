@@ -25,11 +25,17 @@
 </head>
 <body>
 
-<h1>🎵 Mis Canciones</h1>
+<h1>🎵 Radio Molotov</h1>
 
 <audio id="player" controls></audio>
-<button onclick="playNext()">▶ Siguiente</button>
-<button onclick="shuffle()">🎲 Shuffle</button>
+
+<div>
+  <button onclick="prevSong()">⏮ Prev</button>
+  <button onclick="nextSong()">⏭ Next</button>
+  <button onclick="shuffle()">🎲 Shuffle</button>
+</div>
+
+<ul id="playlist"></ul>
 
 <script>
 const songs = [
@@ -39,24 +45,50 @@ const songs = [
 
 let currentIndex = 0;
 const player = document.getElementById("player");
+const playlist = document.getElementById("playlist");
 
-function playNext() {
+function renderPlaylist() {
+    playlist.innerHTML = "";
+    songs.forEach((song, index) => {
+        const li = document.createElement("li");
+        const name = song.split("/").pop().replace(".mp3", "");
+        li.textContent = name;
+        li.style.cursor = "pointer";
+        li.onclick = () => loadSong(index);
+        if (index === currentIndex) {
+            li.style.color = "lime";
+        }
+        playlist.appendChild(li);
+    });
+}
+
+function loadSong(index) {
     if (songs.length === 0) return;
+    currentIndex = index;
     player.src = songs[currentIndex];
     player.play();
+    renderPlaylist();
+}
+
+function nextSong() {
     currentIndex = (currentIndex + 1) % songs.length;
+    loadSong(currentIndex);
+}
+
+function prevSong() {
+    currentIndex = (currentIndex - 1 + songs.length) % songs.length;
+    loadSong(currentIndex);
 }
 
 function shuffle() {
     const randomIndex = Math.floor(Math.random() * songs.length);
-    player.src = songs[randomIndex];
-    player.play();
+    loadSong(randomIndex);
 }
 
-player.addEventListener("ended", playNext);
+player.addEventListener("ended", nextSong);
 
 if (songs.length > 0) {
-    playNext();
+    loadSong(0);
 }
 </script>
 
