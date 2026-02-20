@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Música</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background: #111;
+            color: white;
+            font-family: Arial;
+            text-align: center;
+            padding: 20px;
+        }
+        audio {
+            width: 100%;
+            margin-top: 20px;
+        }
+        button {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+<h1>🎵 Mis Canciones</h1>
+
+<audio id="player" controls></audio>
+<button onclick="playNext()">▶ Siguiente</button>
+<button onclick="shuffle()">🎲 Shuffle</button>
+
+<script>
+const songs = [
+    "canciones/Panteón Rococó - Nada Pasó (En Vivo).mp3",
+    "canciones/Patricio Rey y sus Redonditos de Ricota - Preso en Mi Ciudad - Oktubre (Audio Oficial).mp3"
+];
+
+let currentIndex = 0;
+const player = document.getElementById("player");
+
+function playNext() {
+    if (songs.length === 0) return;
+    player.src = songs[currentIndex];
+    player.play();
+    currentIndex = (currentIndex + 1) % songs.length;
+}
+
+function shuffle() {
+    const randomIndex = Math.floor(Math.random() * songs.length);
+    player.src = songs[randomIndex];
+    player.play();
+}
+
+player.addEventListener("ended", playNext);
+
+if (songs.length > 0) {
+    playNext();
+}
+</script>
+
+</body>
+</html>
